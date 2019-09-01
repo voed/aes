@@ -140,7 +140,7 @@ public plugin_cfg(){
 
 public client_putinserver(id)
 	if(!iDbType)
-		set_task(0.1,"loadUserStats",id)	// статистика не сразу инициализируется
+		set_task(0.1,"loadUserStats",id)	// Г±ГІГ ГІГЁГ±ГІГЁГЄГ  Г­ГҐ Г±Г°Г Г§Гі ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°ГіГҐГІГ±Гї
 
 public loadUserStats(id){
 	if(!is_user_connected(id))
@@ -178,7 +178,7 @@ public client_disconnect(id)
 		arrayset(g_Players[id],0,4)
 
 public client_death(killer,victim,wpn,hit,TK){
-	if(!killer && killer > g_maxplayers || killer == victim)
+	if(!killer || killer > g_maxplayers || killer == victim)
 		return
 	
 	if(TK && !isFFA)
@@ -187,14 +187,14 @@ public client_death(killer,victim,wpn,hit,TK){
 	aes_add_player_exp(killer,hit != HIT_HEAD ? get_pcvar_num(cvar[CVAR_XP_KILL]) : get_pcvar_num(cvar[CVAR_XP_HS]))
 	aes_add_player_exp(victim,get_pcvar_num(cvar[CVAR_XP_DEATH]))
 	
-	// игрок убил VIP
+	// ГЁГЈГ°Г®ГЄ ГіГЎГЁГ« VIP
 	if(isAsMap && cs_get_user_vip(victim)){
 		if(get_playersnum() >= get_pcvar_num(cvar[CVAR_XP_GOAL_MIN_PLAYERS]))
 			aes_add_player_exp(killer,get_pcvar_num(cvar[CVAR_XP_VIP_KILLED]))
 	}
 		
 	
-	// бонусы не включены или временно не работают
+	// ГЎГ®Г­ГіГ±Г» Г­ГҐ ГўГЄГ«ГѕГ·ГҐГ­Г» ГЁГ«ГЁ ГўГ°ГҐГ¬ГҐГ­Г­Г® Г­ГҐ Г°Г ГЎГ®ГІГ ГѕГІ
 	if(!iBonusPointer || !get_pcvar_num(iBonusPointer))
 		return
 
@@ -232,7 +232,7 @@ public client_death(killer,victim,wpn,hit,TK){
 }
 
 
-// бонусы при получении нового звания
+// ГЎГ®Г­ГіГ±Г» ГЇГ°ГЁ ГЇГ®Г«ГіГ·ГҐГ­ГЁГЁ Г­Г®ГўГ®ГЈГ® Г§ГўГ Г­ГЁГї
 public aes_player_levelup(id){
 	if(!iBonusPointer || !get_pcvar_num(cvar[CVAR_LEVEL_BONUS]))
 		return
@@ -313,9 +313,9 @@ public client_rescued_a_hostage(){
 	aes_add_player_exp(userid,get_pcvar_num(cvar[CVAR_XP_HOST_RESCUE]))
 }
 
-// проверка на кол-во бонусных очков игрока
-// cmpr - какой параметр проверяем
-// Array:which - по какому массиву
+// ГЇГ°Г®ГўГҐГ°ГЄГ  Г­Г  ГЄГ®Г«-ГўГ® ГЎГ®Г­ГіГ±Г­Г»Гµ Г®Г·ГЄГ®Гў ГЁГЈГ°Г®ГЄГ 
+// cmpr - ГЄГ ГЄГ®Г© ГЇГ Г°Г Г¬ГҐГІГ° ГЇГ°Г®ГўГҐГ°ГїГҐГ¬
+// Array:which - ГЇГ® ГЄГ ГЄГ®Г¬Гі Г¬Г Г±Г±ГЁГўГі
 public get_current_player_bonuses(id,size,cmpr,Array:which){
 	new bonusPoints,rt[2],i
 	
@@ -329,36 +329,36 @@ public get_current_player_bonuses(id,size,cmpr,Array:which){
 	return bonusPoints
 }
 
-// парсер значений бонусов в массив
+// ГЇГ Г°Г±ГҐГ° Г§Г­Г Г·ГҐГ­ГЁГ© ГЎГ®Г­ГіГ±Г®Гў Гў Г¬Г Г±Г±ГЁГў
 public parse_aes_bonus_values(Array:which,levelString[]){
 	new stPos,ePos,rawPoint[20],rawVals[2],stState
 	
-	// значение не задано
+	// Г§Г­Г Г·ГҐГ­ГЁГҐ Г­ГҐ Г§Г Г¤Г Г­Г®
 	if(!strlen(levelString))
 		return 0
 	
 	do {
-		// ищем пробел
+		// ГЁГ№ГҐГ¬ ГЇГ°Г®ГЎГҐГ«
 		ePos = strfind(levelString[stPos]," ")
 		
-		// узнаем значение с позиции stPos и длинной ePos
+		// ГіГ§Г­Г ГҐГ¬ Г§Г­Г Г·ГҐГ­ГЁГҐ Г± ГЇГ®Г§ГЁГ¶ГЁГЁ stPos ГЁ Г¤Г«ГЁГ­Г­Г®Г© ePos
 		formatex(rawPoint,ePos,levelString[stPos])
 		rawVals[stState] = str_to_num(rawPoint)
 		
 		stPos += ePos + 1
 		
-		// указатель 2ой пары
+		// ГіГЄГ Г§Г ГІГҐГ«Гј 2Г®Г© ГЇГ Г°Г»
 		stState ++
 		
-		// два значения были найдены
-		// записываем их в массив и сбрасываем указатель
+		// Г¤ГўГ  Г§Г­Г Г·ГҐГ­ГЁГї ГЎГ»Г«ГЁ Г­Г Г©Г¤ГҐГ­Г»
+		// Г§Г ГЇГЁГ±Г»ГўГ ГҐГ¬ ГЁГµ Гў Г¬Г Г±Г±ГЁГў ГЁ Г±ГЎГ°Г Г±Г»ГўГ ГҐГ¬ ГіГЄГ Г§Г ГІГҐГ«Гј
 		if(stState == 2){
 			ArrayPushArray(which,rawVals)
 			stState = 0
 		}
 	} while(ePos != -1)
 	
-	// возвращает кол-во 2ых пар
+	// ГўГ®Г§ГўГ°Г Г№Г ГҐГІ ГЄГ®Г«-ГўГ® 2Г»Гµ ГЇГ Г°
 	return ArraySize(which)
 }
 
